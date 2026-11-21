@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
-import profilePhoto from "../asset/IMG20250928225436.jpg";
+import aboutPhoto from "../asset/about-illustration.jpg";
 import schoolLogo from "../asset/LOGO SMK METLAND.png";
+import PortfolioLanyard from "./PortfolioLanyard.jsx";
 import "./styles.css";
 
 const projects = [
@@ -143,22 +144,22 @@ function SpaceBackground() {
     let height = 0;
     let pixelRatio = 1;
     let lastFrame = 0;
-    let nextShootingStar = 240;
+    let nextShootingStar = 25;
     let animationFrame = 0;
     let stars = [];
     let shootingStars = [];
 
     const makeStars = () => {
-      const count = Math.min(190, Math.max(75, Math.round((width * height) / 4200)));
+      const count = Math.min(260, Math.max(90, Math.round((width * height) / 3200)));
       stars = Array.from({ length: count }, () => ({
         x: Math.random() * width,
         y: Math.random() * height,
-        radius: 0.35 + Math.random() * 1.1,
-        alpha: 0.18 + Math.random() * 0.62,
+        radius: 0.4 + Math.random() * 1.45,
+        alpha: 0.32 + Math.random() * 0.62,
         phase: Math.random() * Math.PI * 2,
-        speed: 0.5 + Math.random() * 1.4,
-        driftX: (Math.random() - 0.5) * 0.12,
-        driftY: (Math.random() - 0.5) * 0.08,
+        speed: 0.7 + Math.random() * 1.7,
+        driftX: (Math.random() - 0.5) * 0.4,
+        driftY: (Math.random() - 0.5) * 0.3,
         depth: 0.25 + Math.random() * 0.75,
       }));
     };
@@ -186,14 +187,14 @@ function SpaceBackground() {
         radius,
       );
       gradient.addColorStop(0, color);
-      gradient.addColorStop(0.72, "rgba(10, 28, 73, 0.16)");
-      gradient.addColorStop(0.96, "rgba(40, 78, 159, 0.1)");
+      gradient.addColorStop(0.72, "rgba(10, 24, 58, 0.1)");
+      gradient.addColorStop(0.96, "rgba(33, 64, 126, 0.06)");
       gradient.addColorStop(1, "rgba(5, 8, 18, 0)");
       context.fillStyle = gradient;
       context.beginPath();
       context.arc(x, y, radius, 0, Math.PI * 2);
       context.fill();
-      context.strokeStyle = "rgba(98, 137, 255, 0.075)";
+      context.strokeStyle = "rgba(125, 160, 235, 0.045)";
       context.lineWidth = 1;
       context.stroke();
     };
@@ -207,17 +208,17 @@ function SpaceBackground() {
 
       const offsetX = (pointer.x / Math.max(width, 1) - 0.5) * 28;
       const offsetY = (pointer.y / Math.max(height, 1) - 0.5) * 22;
-      const drift = reducedMotion ? 0 : Math.sin(time * 0.00014) * 10;
+      const drift = reducedMotion ? 0 : Math.sin(time * 0.0003) * 16;
 
       context.save();
       context.globalCompositeOperation = "screen";
-      drawOrb(width * 0.08 - offsetX, height * 0.44 - offsetY + drift, Math.max(230, Math.min(width * 0.35, height * 0.39)), "rgba(44, 103, 237, 0.2)");
-      drawOrb(width * 0.94 + offsetX * 0.8, height * 0.59 + offsetY * 0.7 - drift * 0.7, Math.max(210, Math.min(width * 0.32, height * 0.36)), "rgba(16, 185, 129, 0.12)");
+      drawOrb(width * 0.08 - offsetX, height * 0.44 - offsetY + drift, Math.max(230, Math.min(width * 0.35, height * 0.39)), "rgba(33, 70, 165, 0.12)");
+      drawOrb(width * 0.94 + offsetX * 0.8, height * 0.59 + offsetY * 0.7 - drift * 0.7, Math.max(210, Math.min(width * 0.32, height * 0.36)), "rgba(20, 52, 104, 0.09)");
       context.restore();
 
       if (pointer.active) {
         const aura = context.createRadialGradient(pointer.x, pointer.y, 0, pointer.x, pointer.y, 300);
-        aura.addColorStop(0, "rgba(66, 111, 255, 0.12)");
+        aura.addColorStop(0, "rgba(75, 120, 230, 0.09)");
         aura.addColorStop(1, "rgba(66, 111, 255, 0)");
         context.fillStyle = aura;
         context.fillRect(0, 0, width, height);
@@ -233,28 +234,43 @@ function SpaceBackground() {
           if (star.y > height + 2) star.y = -2;
         }
 
-        const twinkle = reducedMotion ? 1 : 0.55 + Math.sin(time * 0.001 * star.speed + star.phase) * 0.35;
+        const twinkle = reducedMotion
+          ? 1
+          : 0.35 + (Math.sin(time * 0.001 * star.speed + star.phase) + 1) * 0.325;
         const x = star.x + offsetX * star.depth;
         const y = star.y + offsetY * star.depth;
         context.beginPath();
         context.arc(x, y, star.radius, 0, Math.PI * 2);
         context.fillStyle = `rgba(218, 228, 255, ${star.alpha * twinkle})`;
         context.fill();
+        if (star.radius > 1.55 && twinkle > 0.82) {
+          context.beginPath();
+          context.moveTo(x - star.radius * 2.8, y);
+          context.lineTo(x + star.radius * 2.8, y);
+          context.moveTo(x, y - star.radius * 2.8);
+          context.lineTo(x, y + star.radius * 2.8);
+          context.strokeStyle = `rgba(206, 226, 255, ${star.alpha * (twinkle - 0.65)})`;
+          context.lineWidth = 0.65;
+          context.stroke();
+        }
       });
 
       if (!reducedMotion) {
         nextShootingStar -= delta;
         if (nextShootingStar <= 0) {
-          const x = width * (0.25 + Math.random() * 0.8);
-          shootingStars.push({
-            x,
-            y: Math.random() * height * 0.48,
-            vx: -5 - Math.random() * 4,
-            vy: 3 + Math.random() * 2,
-            length: 60 + Math.random() * 85,
-            life: 1,
-          });
-          nextShootingStar = 240 + Math.random() * 260;
+          const burst = Math.random() < 0.4 ? 2 : 1;
+          for (let index = 0; index < burst && shootingStars.length < 4; index += 1) {
+            shootingStars.push({
+              x: width * (0.25 + Math.random() * 0.8),
+              y: Math.random() * height * 0.55,
+              vx: -6 - Math.random() * 5,
+              vy: 2.8 + Math.random() * 3.2,
+              length: 100 + Math.random() * 180,
+              width: Math.random() < 0.2 ? 2 : 1.2,
+              life: 1,
+            });
+          }
+          nextShootingStar = 28 + Math.random() * 50;
         }
       }
 
@@ -262,7 +278,7 @@ function SpaceBackground() {
       shootingStars.forEach((star) => {
         star.x += star.vx * delta;
         star.y += star.vy * delta;
-        star.life -= 0.035 * delta;
+        star.life -= 0.022 * delta;
         const trail = context.createLinearGradient(
           star.x - star.vx * star.length / 8,
           star.y - star.vy * star.length / 8,
@@ -270,13 +286,26 @@ function SpaceBackground() {
           star.y,
         );
         trail.addColorStop(0, "rgba(130, 176, 255, 0)");
-        trail.addColorStop(1, `rgba(196, 221, 255, ${Math.max(star.life, 0)})`);
+        trail.addColorStop(0.7, `rgba(104, 164, 255, ${Math.max(star.life, 0) * 0.45})`);
+        trail.addColorStop(1, `rgba(240, 248, 255, ${Math.max(star.life, 0)})`);
         context.beginPath();
         context.moveTo(star.x - star.vx * star.length / 8, star.y - star.vy * star.length / 8);
         context.lineTo(star.x, star.y);
         context.strokeStyle = trail;
-        context.lineWidth = 1.4;
+        context.globalAlpha = 0.24 * star.life;
+        context.lineWidth = star.width * 5;
         context.stroke();
+        context.globalAlpha = star.life;
+        context.lineWidth = star.width;
+        context.stroke();
+        context.globalAlpha = 1;
+        const head = context.createRadialGradient(star.x, star.y, 0, star.x, star.y, star.width * 4);
+        head.addColorStop(0, `rgba(255, 255, 255, ${star.life})`);
+        head.addColorStop(1, "rgba(106, 163, 255, 0)");
+        context.fillStyle = head;
+        context.beginPath();
+        context.arc(star.x, star.y, star.width * 4, 0, Math.PI * 2);
+        context.fill();
       });
 
       if (!reducedMotion) animationFrame = window.requestAnimationFrame(render);
@@ -315,171 +344,68 @@ function SpaceBackground() {
 }
 
 function Navigation() {
+  const audioContextRef = useRef(null);
+  const [activeSection, setActiveSection] = useState("home");
+
+  const playClickSound = () => {
+    const AudioContext = window.AudioContext;
+    if (!AudioContext) return;
+
+    const audioContext = audioContextRef.current || new AudioContext();
+    audioContextRef.current = audioContext;
+    if (audioContext.state === "suspended") void audioContext.resume();
+
+    const oscillator = audioContext.createOscillator();
+    const volume = audioContext.createGain();
+    const now = audioContext.currentTime;
+
+    oscillator.type = "sine";
+    oscillator.frequency.setValueAtTime(740, now);
+    oscillator.frequency.exponentialRampToValueAtTime(1040, now + 0.045);
+    volume.gain.setValueAtTime(0.0001, now);
+    volume.gain.exponentialRampToValueAtTime(0.045, now + 0.008);
+    volume.gain.exponentialRampToValueAtTime(0.0001, now + 0.11);
+    oscillator.connect(volume);
+    volume.connect(audioContext.destination);
+    oscillator.start(now);
+    oscillator.stop(now + 0.12);
+  };
+
+  useEffect(() => {
+    if (!("IntersectionObserver" in window)) return undefined;
+
+    const sections = ["home", "about", "projects", "contact"]
+      .map((id) => document.getElementById(id))
+      .filter(Boolean);
+    const observer = new IntersectionObserver((entries) => {
+      const currentSection = entries
+        .filter((entry) => entry.isIntersecting)
+        .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+
+      if (currentSection) setActiveSection(currentSection.target.id);
+    }, { rootMargin: "-35% 0px -55% 0px" });
+
+    sections.forEach((section) => observer.observe(section));
+    return () => observer.disconnect();
+  }, []);
+
+  const navigateTo = (section) => {
+    setActiveSection(section);
+    playClickSound();
+  };
+
   return (
     <header className="site-header">
       <nav className="navigation" aria-label="Navigasi utama">
-        <a className="logo" href="#home">
-          Daffa<span>Dev.</span>
-        </a>
+        <a className="mobile-logo" href="#home" onClick={() => navigateTo("home")}>DaffaDev</a>
         <ul className="nav-links">
-          <li><a href="#about">About</a></li>
-          <li><a href="#education">Education</a></li>
-          <li><a href="#projects">Portfolio</a></li>
-          <li><a href="#contact">Kontak</a></li>
+          <li><a href="#home" aria-current={activeSection === "home" ? "page" : undefined} onClick={() => navigateTo("home")}>Home</a></li>
+          <li><a href="#about" aria-current={activeSection === "about" ? "page" : undefined} onClick={() => navigateTo("about")}>About</a></li>
+          <li><a href="#projects" aria-current={activeSection === "projects" ? "page" : undefined} onClick={() => navigateTo("projects")}>Portfolio</a></li>
+          <li><a href="#contact" aria-current={activeSection === "contact" ? "page" : undefined} onClick={() => navigateTo("contact")}>Kontak</a></li>
         </ul>
-        <a className="nav-cta" href="#contact">
-          Let’s talk <span aria-hidden="true">↗</span>
-        </a>
       </nav>
     </header>
-  );
-}
-
-function IdentityCard() {
-  const [tilt, setTilt] = useState({ x: 0, y: 0, pointerX: 50, pointerY: 45 });
-  const [drag, setDrag] = useState({ x: 0, y: 0, offsetX: 0, offsetY: 0 });
-  const [isDragging, setIsDragging] = useState(false);
-  const dragStartRef = useRef(null);
-
-  const handlePointerMove = (event) => {
-    const scene = event.currentTarget;
-    const dragStart = dragStartRef.current;
-
-    if (dragStart && dragStart.pointerId === event.pointerId) {
-      const deltaX = event.clientX - dragStart.pointerX;
-      const deltaY = event.clientY - dragStart.pointerY;
-      const maxOffset = Math.min(140, window.innerWidth * 0.35);
-      const maxVerticalOffset = Math.min(120, window.innerHeight * 0.16);
-      setDrag({
-        x: Math.max(-16, Math.min(16, dragStart.x - deltaY * 0.18)),
-        y: Math.max(-30, Math.min(30, dragStart.y + deltaX * 0.2)),
-        offsetX: Math.max(
-          -maxOffset,
-          Math.min(maxOffset, dragStart.offsetX + deltaX),
-        ),
-        offsetY: Math.max(
-          -maxVerticalOffset,
-          Math.min(maxVerticalOffset, dragStart.offsetY + deltaY),
-        ),
-      });
-      return;
-    }
-
-    const sceneBounds = scene.getBoundingClientRect();
-    const card = scene.querySelector(".identity-card");
-    const cardWidth = card.offsetWidth;
-    const cardHeight = card.offsetHeight;
-    const cardLeft = sceneBounds.left + (sceneBounds.width - cardWidth) / 2;
-    const cardTop = sceneBounds.top + card.offsetTop;
-    const horizontal = (event.clientX - cardLeft) / cardWidth - 0.5;
-    const vertical = (event.clientY - cardTop) / cardHeight - 0.5;
-
-    setTilt({
-      x: vertical * -24,
-      y: horizontal * 32,
-      pointerX: Math.min(100, Math.max(0, (horizontal + 0.5) * 100)),
-      pointerY: Math.min(100, Math.max(0, (vertical + 0.5) * 100)),
-    });
-  };
-
-  const resetTilt = () => setTilt({ x: 0, y: 0, pointerX: 50, pointerY: 45 });
-  const handlePointerDown = (event) => {
-    if (!event.target.closest(".card-drag")) return;
-
-    dragStartRef.current = {
-      pointerId: event.pointerId,
-      pointerX: event.clientX,
-      pointerY: event.clientY,
-      x: drag.x,
-      y: drag.y,
-      offsetX: drag.offsetX,
-      offsetY: drag.offsetY,
-    };
-    setIsDragging(true);
-    event.currentTarget.setPointerCapture(event.pointerId);
-  };
-  const handlePointerUp = (event) => {
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-      event.currentTarget.releasePointerCapture(event.pointerId);
-    }
-    dragStartRef.current = null;
-    setIsDragging(false);
-    setDrag({ x: 0, y: 0, offsetX: 0, offsetY: 0 });
-    resetTilt();
-  };
-  const handlePointerCancel = () => {
-    dragStartRef.current = null;
-    setIsDragging(false);
-    setDrag({ x: 0, y: 0, offsetX: 0, offsetY: 0 });
-    resetTilt();
-  };
-
-  return (
-    <div
-      className={`card-scene${isDragging ? " is-dragging" : ""}`}
-      onPointerMove={handlePointerMove}
-      onPointerDown={handlePointerDown}
-      onPointerUp={handlePointerUp}
-      onPointerCancel={handlePointerCancel}
-      onPointerLeave={resetTilt}
-      aria-label="Kartu portfolio Daffa Maulana Muzaky"
-    >
-      <div className="card-orbit orbit-a" />
-      <div className="card-orbit orbit-b" />
-      <div className="card-drop">
-        <div
-          className={`card-drag${isDragging ? " is-dragging" : ""}`}
-          style={{
-            "--drag-x": `${drag.x}deg`,
-            "--drag-y": `${drag.y}deg`,
-            "--drag-offset-x": `${drag.offsetX}px`,
-            "--drag-offset-y": `${drag.offsetY}px`,
-          }}
-        >
-          <div className="card-rig">
-            <div className="lanyard">
-              <span className="lanyard-print">DAFFA • PPLG • METLAND</span>
-            </div>
-            <span className="card-clip" aria-hidden="true" />
-            <article
-              className="identity-card liquid-border"
-              style={{
-                "--tilt-x": `${tilt.x}deg`,
-                "--tilt-y": `${tilt.y}deg`,
-                "--pointer-x": `${tilt.pointerX}%`,
-                "--pointer-y": `${tilt.pointerY}%`,
-              }}
-            >
-            <div className="card-header">
-              <img src={schoolLogo} alt="Logo Metland School" draggable={false} />
-              <div>
-                <span>METLAND SCHOOL</span>
-                <small>CIBITUNG</small>
-              </div>
-            </div>
-            <div className="card-role" aria-hidden="true">
-              <span>JUNIOR</span>
-              <strong>DEVELOPER</strong>
-            </div>
-            <div className="card-photo">
-              <img src={profilePhoto} alt="Daffa Maulana Muzaky" draggable={false} />
-              <span className="card-photo-label">PORTFOLIO ID</span>
-            </div>
-            <div className="card-name">
-              <strong>DAFFA MAULANA MUZAKY</strong>
-              <span>SOFTWARE ENGINEERING</span>
-            </div>
-            <div className="card-footer">
-              <span>PPLG</span>
-              <span>FULLSTACK DEVELOPER</span>
-            </div>
-            <span className="card-glint" aria-hidden="true" />
-            </article>
-          </div>
-        </div>
-      </div>
-      <span className="card-index">01 / 01</span>
-    </div>
   );
 }
 
@@ -504,7 +430,7 @@ function Hero() {
           </a>
         </div>
       </div>
-      <IdentityCard />
+      <PortfolioLanyard />
       <div className="hero-socials" aria-label="Social media">
         <span className="hero-socials-label">FIND ME</span>
         <a
@@ -548,7 +474,7 @@ function About() {
           </h3>
         </div>
         <figure className="about-photo liquid-border reveal-item">
-          <img src={profilePhoto} alt="Daffa Maulana Muzaky" loading="lazy" />
+          <img src={aboutPhoto} alt="Ilustrasi Ichigo Kurosaki" loading="lazy" />
           <figcaption>DAFFA MAULANA MUZAKY <span>• JUNIOR DEVELOPER</span></figcaption>
         </figure>
         <div className="about-copy reveal-item">
